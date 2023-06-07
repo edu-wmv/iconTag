@@ -13,7 +13,7 @@
 <p>Projeto realizado por integrantes do Lab ICON.</p>
 <p>Responsável por registrar e gerenciar as horas dos integrantes do laboratório e ajudar na adminstração.</p>
 
-### Features
+### Funcionalidades
 
 - [x] Ler tag
 - [ ] Cadastro de novas tags
