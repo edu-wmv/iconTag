@@ -10,6 +10,8 @@
 ![ícone do lab icon](https://lh3.googleusercontent.com/u/0/drive-viewer/AFGJ81o4rrHWEVCUmdPUOixbYYfRBtw_eM-vzhcLxoyb1imf_1twUPhaAQX2qf-HBbzJWl9Bgh2xGw_VH-ipwzNHZBRQpAFF=w1920-h912)
 
 <h1>Geral</h1>
+<p>Projeto realizado por integrantes do Lab ICON.</p>
+<p>Responsável por registrar e gerenciar as horas dos integrantes do laboratório e ajudar na adminstração.</p>
 
 ### Features
 
@@ -18,3 +20,11 @@
 - [ ] Gravação básica
 - [ ] Gravação em banco de dados
 - [ ] ...
+
+### Compatibilidade
+
+NFC | Compatível?
+:---:| ---
+iconTAG| ✅
+SalvadorCard| ✅
+Celular| ❓
