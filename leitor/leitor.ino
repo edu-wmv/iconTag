@@ -1,8 +1,6 @@
 #include <SPI.h>
 #include <MFRC522.h>
-
-#define RST_PIN   9
-#define SS_PIN    10
+#include <variables.h>
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 
@@ -15,9 +13,12 @@ void setup() {
 }
 
 void loop() {
-  if (rfid.PICC_IsNewCardPresent()) {             // tag disponível
-    if (rfid.PICC_ReadCardSerial()) {             // aqui a tag foi lida já
 
+  // tag disponível
+  if (rfid.PICC_IsNewCardPresent()) {
+
+    // aqui a tag foi lida já         
+    if (rfid.PICC_ReadCardSerial()) {
 
       // esse código cria a variavél para armazenar as infos do tipo da tag
       MFRC522::PICC_Type picc_Type = rfid.PICC_GetType(rfid.uid.sak);
