@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <MFRC522.h>
-#include <variables.h>
+#include "variables.h"
+// #include <Ethernet.h> Modulo de internet
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 
