@@ -2,10 +2,9 @@
 #include <MFRC522.h>
 #include <SD.h>
 #include "getTime.h"
+#include "functions.h"
 
 MFRC522 rfid(SS_PIN, RST_PIN);
-
-String zero = "0";
 
 void setup() {
   Serial.begin(9600);		                         // inicia o comunicação do código com o serial
@@ -45,16 +44,8 @@ void loop() {
         Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : ":"); // FIX
         Serial.print(rfid.uid.uidByte[i], HEX);
       }
-
-      Serial.println("");
-      Serial.print("Time: ");
-      Serial.print(hour());
-      Serial.print(":");
-      Serial.print(minute() < 10 ? "01" : String(minute())); // FIX
-      Serial.print(":");
-      Serial.print(second() < 10 ? "01" : String(second())); // FIX
-      Serial.println("");
       
+      printTime(hour(), minute(), second());
 
       // parar a leitura
       rfid.PICC_HaltA();
