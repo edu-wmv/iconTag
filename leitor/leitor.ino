@@ -42,7 +42,7 @@ void loop() {
       // retorna UID da tag em HEX
       Serial.print("UID: ");
       for ( int i = 0; i < rfid.uid.size; i++) {
-        Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
+        Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : ":"); // FIX
         Serial.print(rfid.uid.uidByte[i], HEX);
       }
 
@@ -50,9 +50,9 @@ void loop() {
       Serial.print("Time: ");
       Serial.print(hour());
       Serial.print(":");
-      Serial.print(minute() < 10 ? "01" : minute()); // FIX
+      Serial.print(minute() < 10 ? "01" : String(minute())); // FIX
       Serial.print(":");
-      Serial.print(second() < 10 ? "01" : second()); // FIX
+      Serial.print(second() < 10 ? "01" : String(second())); // FIX
       Serial.println("");
       
 
