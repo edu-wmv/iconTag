@@ -1,13 +1,17 @@
 #include <SPI.h>
 #include <MFRC522.h>
+#include <SD.h>
 #include "getTime.h"
 
 MFRC522 rfid(SS_PIN, RST_PIN);
+
+String zero = "0";
 
 void setup() {
   Serial.begin(9600);		                         // inicia o comunicação do código com o serial
   SPI.begin();                                   // inicia o spi
   rfid.PCD_Init();                               // inicia o leitor de tag63
+  SD.begin(4);
 
   while(Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -24,7 +28,6 @@ void setup() {
 }
 
 void loop() {
-
   // tag disponível
   if (rfid.PICC_IsNewCardPresent()) {
 
@@ -42,12 +45,16 @@ void loop() {
         Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
         Serial.print(rfid.uid.uidByte[i], HEX);
       }
-      Serial.println();
 
-      Serial.println("Time: ");
-      Serial.println(hour());
-      Serial.println(minute());
-      Serial.println(second());
+      Serial.println("");
+      Serial.print("Time: ");
+      Serial.print(hour());
+      Serial.print(":");
+      Serial.print(minute() < 10 ? "01" : minute()); // FIX
+      Serial.print(":");
+      Serial.print(second() < 10 ? "01" : second()); // FIX
+      Serial.println("");
+      
 
       // parar a leitura
       rfid.PICC_HaltA();
