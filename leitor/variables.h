@@ -3,7 +3,6 @@
 #include <TimeLib.h>
 #include <SPI.h>
 #include <MFRC522.h>
-#include <SD.h>
 
 // RFID MODULE PINS
 #define RST_PIN   9
@@ -20,6 +19,3 @@ time_t prevDisplay = 0;
 byte messageBuffer[48];
 const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
 byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
-
-// SD CARD VARIABLES
-File tagFile;
