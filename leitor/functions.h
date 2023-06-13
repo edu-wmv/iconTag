@@ -1,11 +1,10 @@
 #include "variables.h"
 
 // FORMAT TIME FUNCTION
-void printTime(int h, int m, int s) {
+String timeFix(int h, int m, int s) {
   char buffer[6];
-  Serial.println("");
   sprintf(buffer, "%02d:%02d:%02d", h, m, s);
-  Serial.println(buffer);
+  return buffer;
 }
 
 void ethernetUDP() {
@@ -17,25 +16,6 @@ void ethernetUDP() {
   Serial.println(Ethernet.localIP());
   Udp.begin(localPort);
   Serial.println("Ethernet UDP Start....");
-}
-
-// SD CARD INITIALIZATOR
-void sdCardInitialization() {
-  // SD CARD INITIALIZATION
-  while(!Serial);
-  Serial.print("Initializing SD card...");
-  SD.begin(4);
-
-  if (!SD.begin(4)) {
-    Serial.println("initialization failed. Things to check:");
-    Serial.println("1. is a card inserted?");
-    Serial.println("2. is your wiring correct?");
-    Serial.println("3. did you change the chipSelect pin to match your shield or module?");
-    Serial.println("Note: press reset button on the board and reopen this serial monitor after fixing your issue!");
-    while (1);
-  }
-
-  Serial.println("Initialization done.");
 }
 
 // TIME SEND & REQUEST FUNCTIONS
