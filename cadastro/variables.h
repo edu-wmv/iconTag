@@ -1,25 +1,17 @@
-#include "functions.h"
+#include <SPI.h>
+#include <MFRC522.h>
 
-void setup() {
-  Serial.begin(9600);		                         // inicia o comunicação do código com o serial
-  SPI.begin();                                   // inicia o spi
-  rfid.PCD_Init();                               // inicia o leitor de tag63
+// RFID MODULE PINS
+#define RST_PIN   9 // RFID reset pin
+#define SS_PIN    8 // RFID pin
+MFRC522 rfid(SS_PIN, RST_PIN); // rfid initializator
 
-  ethernetUDP();
-  setSyncProvider(getNtpTime);
-
-	Serial.println("Aproxime a tag do leitor");
-}
-
-void loop() {
-  tagReader();
-}
-
-void tagReader() {
+String tagReader() {
   // tag disponível
+  Serial.println("Ready");
+  String uid_record;
+  while(1)
   if (rfid.PICC_IsNewCardPresent()) {
-    String time = timeFix(hour(), minute(), second());
-    String uid;
     // aqui a tag foi lida já         
     if (rfid.PICC_ReadCardSerial()) {
       // esse código cria a variavél para armazenar as infos do tipo da tag
@@ -32,19 +24,21 @@ void tagReader() {
       for ( int i = 0; i < rfid.uid.size; i++) {
         Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : ":"); // FIX
         Serial.print(rfid.uid.uidByte[i], HEX);
-        uid.concat(rfid.uid.uidByte[i]);
+        uid_record.concat(rfid.uid.uidByte[i]);
       }
       
-      Serial.print("\nTime: ");
-      Serial.println(time);
-      Serial.print("UID Geral: ");
-      Serial.println(uid);
+      Serial.print("\nUID Geral: ");
+      Serial.println(uid_record);
 
-
+      return uid_record;
 
       // parar a leitura
       rfid.PICC_HaltA();
       rfid.PCD_StopCrypto1();
     }
   }
+}
+
+void _register() {
+  tagReader();
 }

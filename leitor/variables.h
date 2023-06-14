@@ -3,6 +3,7 @@
 #include <TimeLib.h>
 #include <SPI.h>
 #include <MFRC522.h>
+#include <ArduinoJson.h>
 
 // RFID MODULE PINS
 #define RST_PIN   9 // RFID reset pin
