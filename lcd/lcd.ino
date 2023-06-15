@@ -51,13 +51,32 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 void setup() {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
+  lcd.clear();
   // Print a message to the LCD.
-  lcd.print("BEM VINDO, ICON!");
+  lcd.print("BEM VINDO AO ICON!");
 
   lcd.setCursor(0, 1);
   lcd.print("ACESSO REGISTRADO");
+
 }
 
 void loop() {
+  
+  
+for(int lcdpos = 0; lcdpos < 42; lcdpos ++)
+{
+  lcd.setCursor(0,0);
+  lcd.scrollDisplayRight();
+  delay (250);
+}
+
+  for(int lcdpos = 0; lcdpos < 42; lcdpos ++)
+{
+lcd.setCursor(16,0);
+lcd.scrollDisplayLeft();
+delay (250);
+}
+
+
 
 }
