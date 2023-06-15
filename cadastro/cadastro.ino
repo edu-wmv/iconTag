@@ -1,5 +1,6 @@
 #include "variables.h"
 
+
 void setup() {
   Serial.begin(9600);
   SPI.begin();
@@ -16,4 +17,3 @@ void loop() {
 
   while(1);
 }
-
