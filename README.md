@@ -16,10 +16,9 @@
 ### Funcionalidades
 
 - [x] Ler tag
-- [ ] Cadastro de novas tags
-- [ ] Gravação básica
-- [ ] Gravação em banco de dados
-- [ ] ...
+- [ ] Cadastro de novas tags [EM ANDAMENTO] - @edu-wmv
+- [ ] Gravação em banco de dados [EM ANDAMENTO] - @edu-wmv
+- [ ] Registro visual [EM ANDAMENTO] - @brenluz
 
 ### Compatibilidade
 
