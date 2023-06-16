@@ -1,10 +1,28 @@
 #include <SPI.h>
+#include <Ethernet.h>
 #include <MFRC522.h>
 
 // RFID MODULE PINS
 #define RST_PIN   9 // RFID reset pin
 #define SS_PIN    8 // RFID pin
 MFRC522 rfid(SS_PIN, RST_PIN); // rfid initializator
+
+// ETHERNET & TIME VARIABLES
+byte mac[] = { 0xAA, 0xBB, 0xCC, 0x00, 0xFE, 0xED }; // end. mac
+unsigned int localPort = 8888; // porta a ser usada no protcolo de rede
+EthernetUDP Udp; // cria o protocolo iniciador do UDP
+EthernetClient client;
+
+void ethernetUDP() {
+  while(Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    delay(1000);
+  }
+  Serial.print("Ethernet Shield IP (DHCP): ");
+  Serial.println(Ethernet.localIP());
+  Udp.begin(localPort);
+  Serial.println("Ethernet UDP Start....");
+}
 
 String tagReader() {
   // tag disponível
@@ -39,6 +57,35 @@ String tagReader() {
   }
 }
 
-void _register() {
-  tagReader();
+int HTTP_PORT = 8080;
+String HTTP_METHOD = "GET";
+char HOST_NAME[] = "192.168.0.123";
+String PATH_NAME = "/insertData";
+String api_key = "SUNPTl9pY29udGFn";
+
+void sendData(String id, String name, String uid) {
+  String queryString = "?id=" + id + "&name=" + name + "&uid=" + uid;
+
+  if(client.connect(HOST_NAME, HTTP_PORT)) {
+    Serial.println("Connected to server: ");
+
+    client.println(HTTP_METHOD + " " + PATH_NAME + queryString + "HTTP/1.1");
+    client.println("Host: " + String(HOST_NAME));
+    client.println("API-Key: " + api_key);
+    client.println("Connection: close");
+    client.println();
+
+    while(client.connected()) {
+      if(client.available()) {
+        char c = client.read();
+        Serial.print(c);
+      }
+    }
+
+    client.stop();
+    Serial.println();
+    Serial.println("disconnected");
+  } else {
+    Serial.println("connection failed");
+  }
 }

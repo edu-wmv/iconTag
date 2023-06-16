@@ -31,10 +31,10 @@ app.get('/test', (req: Request, res: Response) => {
     res.status(200).send('Authorized');
 })
 
-//app.get("/insertData", db.insertData)
-//app.get("/getData", db.getData)
+app.get("/insertData", db.insertData)
+app.get("/getData", db.getData)
 //app.get("/getName", db.getDataByName)
 
-app.listen(3000, () => {
+app.listen(8080, () => {
     console.log("⚡️[server]: Server is running on port 3000")
 })

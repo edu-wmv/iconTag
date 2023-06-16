@@ -3,7 +3,7 @@ import { QueryResult } from 'pg'
 const { pool } = require('./db')
 
 const insertData = (req: Request, res: Response) => {
-    const id = parseInt(req.params.id)
+    const id = req.params.id
     const name = req.params.name
     const uid = req.params.uid
 
