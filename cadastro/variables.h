@@ -57,13 +57,13 @@ String tagReader() {
   }
 }
 
-int HTTP_PORT = 80;
+int HTTP_PORT = 8080;
 String HTTP_METHOD = "GET";
 byte HOST_NAME[] = { 192, 168, 0, 123 };
 String PATH_NAME = "/insertData";
 String api_key = "SUNPTl9pY29udGFn";
 String getData = "GET /insertData ";
-String http = " HTTP/1.1"
+String http = " HTTP/1.1";
 
 String uid;
 String name;
@@ -77,12 +77,9 @@ void sendData() {
   if(client.connect("192.168.0.123", HTTP_PORT)) {
     Serial.println("Connected to server: ");
     query = "?id" + id + "&name=" + name + "&uid=" + uid;
-    test = getData.concat(query);
-    test2 = test.concat(http)
-    Serial.println(query);
+    Serial.print(query);
 
     client.println("GET /insertData " + query + "HTTP/1.1");
-    //client.println(test2);
     client.println("Host: 192.168.0.123");
     client.println("API-Key: SUNPTl9pY29udGFn");
     client.println("Connection: close");

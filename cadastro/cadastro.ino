@@ -9,7 +9,6 @@ void setup() {
   Serial.println("Iniciar cadastro...");
 }
 
-
 int check;
 
 void loop() {
