@@ -9,9 +9,7 @@ void setup() {
   Serial.println("Iniciar cadastro...");
 }
 
-String uid;
-String name;
-String id;
+
 int check;
 
 void loop() {
@@ -40,7 +38,7 @@ void loop() {
   switch(check) {
     case 1:
       Serial.println("\nOK");
-      sendData(id, name, uid);
+      sendData();
       break;
     case 2:
       Serial.print("\nOperação cancelada.");
