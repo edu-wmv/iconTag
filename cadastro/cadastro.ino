@@ -16,16 +16,11 @@ void loop() {
   Serial.println("Digite o nome: ");
   while(Serial.available() == 0) {}
   name = Serial.readString();
-  Serial.println("Digite o ID: ");
-  while(Serial.available() == 0) {}
-  id = Serial.readString();
 
   Serial.println("\n========================");
   Serial.println("\nVerifique os dados:");
   Serial.print("Nome: ");
   Serial.println(name);
-  Serial.print("ID: ");
-  Serial.println(id);
   Serial.print("UID: ");
   Serial.println(uid);
 

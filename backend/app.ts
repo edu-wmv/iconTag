@@ -28,7 +28,9 @@ app.get('/', (req: Request, res: Response) => {
     res.status(200).send('Node.js + Express + PostgreSQL API')
 })
 app.get('/test', (req: Request, res: Response) => {
-    res.status(200).send('Authorized');
+    const id = req.headers['id']
+
+    res.status(200).send('Authorized' + id);
 })
 
 app.get("/insertData", db.insertData)
@@ -36,5 +38,5 @@ app.get("/getData", db.getData)
 //app.get("/getName", db.getDataByName)
 
 app.listen(8080, () => {
-    console.log("⚡️[server]: Server is running on port 3000")
+    console.log("⚡️[server]: Server is running on port 8080")
 })

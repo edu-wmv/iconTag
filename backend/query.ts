@@ -3,17 +3,17 @@ import { QueryResult } from 'pg'
 const { pool } = require('./db')
 
 const insertData = (req: Request, res: Response) => {
-    const id = req.params.id
-    const name = req.params.name
-    const uid = req.params.uid
+    const name = req.headers['name']
+    const uid = req.headers['uid']
 
     pool.query(
-        "INSERT INTO iconicos (id, name, uid) VALUES ($1, $2, $3)",
-        [id, name, uid], (error: Error, results: QueryResult) => {
+        `INSERT INTO iconicos (name, uid)
+         values (${name}, ARRAY ['${uid}'])`, 
+         (error: Error, results: QueryResult) => {
             if (error) {
                 throw error
             }
-            res.status(200).json(results.rows)
+            res.status(200).json('Usuario adicionado!')
         })
 }
 
