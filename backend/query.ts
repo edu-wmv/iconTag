@@ -8,13 +8,31 @@ const insertData = (req: Request, res: Response) => {
 
     pool.query(
         `INSERT INTO iconicos (name, uid)
-         values (${name}, ARRAY ['${uid}'])`, 
+         values ('${name}', ARRAY ['${uid}'])`, 
          (error: Error, results: QueryResult) => {
             if (error) {
                 throw error
             }
             res.status(200).json('Usuario adicionado!')
         })
+}
+
+const insertUID = (req: Request, res: Response) =>  {
+    const id = req.headers['id']
+    const uid = req.headers['uid']
+
+    pool.query(
+        `UPDATE iconicos
+         SET uid = array_append(uid, '${uid}')
+         WHERE id = ${id}
+         RETURNING *`,
+        (error: Error, results: QueryResult) => {
+            if (error) {
+                throw error
+            }
+            res.status(200).json(`Nova UID adicionada!`)
+        }
+    )
 }
 
 const getData = (req: Request, res: Response) => {
@@ -43,8 +61,34 @@ const getDataByName = (req: Request, res: Response) => {
     )
 }
 
+const setPoint = (req: Request, res: Response) => {
+    const uuid = req.headers['uuid']
+
+    pool.query(
+        `SELECT * FROM iconicos WHERE '${uuid}' = ANY (uid)`,
+        (error: Error, results: QueryResult) => {
+            if (error) {
+                throw error
+            }
+            // ENCONTROU USUÁRIO
+            const userId = results.rows[0].id;
+            const userName = results.rows[0].name;
+
+            pool.query(
+                `SELECT * FROM pontos`
+            )
+
+            res.status(200).json(results.rows);
+        }
+    )
+
+    
+}
+
 module.exports = {
     insertData,
     getData,
     getDataByName,
+    insertUID,
+    setPoint
 }

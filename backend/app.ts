@@ -35,7 +35,8 @@ app.get('/test', (req: Request, res: Response) => {
 
 app.get("/insertData", db.insertData)
 app.get("/getData", db.getData)
-//app.get("/getName", db.getDataByName)
+app.get("/insertUID", db.insertUID)
+app.get("/setPoint", db.setPoint)
 
 app.listen(8080, () => {
     console.log("⚡️[server]: Server is running on port 8080")
