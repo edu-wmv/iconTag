@@ -21,3 +21,10 @@ const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
 byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 
 String uid;
+String time;
+
+int HTTP_PORT = 8080;
+byte HOST_NAME[] = { 192, 168, 0, 123 };
+String HOST = "192.168.0.123";
+String API_KEY = "SUNPTl9pY29udGFn";
+EthernetClient client;

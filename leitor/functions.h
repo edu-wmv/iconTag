@@ -59,27 +59,53 @@ time_t getNtpTime() {
 }
 
 // FORMAT TIME FUNCTION
-String timeFix(int h, int m, int s) {
-  char buffer[6];
-  sprintf(buffer, "%02d:%02d:%02d", h, m, s);
+String timeFix(int y, int mon, int day, int h, int min, int s) {
+  char buffer[19];
+  sprintf(buffer, "%d-%02d-%02d %02d:%02d:%02d", y, mon, day, h, min, s);
   return buffer;
+}
+
+void send() {
+  if (client.connect(HOST_NAME, HTTP_PORT)) {
+    Serial.println("Connected to server: ");
+
+    client.println("GET /setPoint HTTP/1.1");
+    client.println("Host: " + String(HOST) + ":" + String(HTTP_PORT));
+    client.println("api-key: " + String(API_KEY));
+    client.println("uuid: " + String(uid));
+    client.println("time: " + String(time));
+    client.println("Connection: close");
+    client.println();
+
+    while(client.connected()) {
+      if(client.available()) {
+        char c = client.read();
+        Serial.print(c);
+      }
+    }
+
+    client.stop();
+    Serial.println();
+    Serial.println("disconnected");
+
+  } else {
+    Serial.println("Connection failed :/");
+  }
 }
 
 void tagReader() {
   // tag disponível
   if (rfid.PICC_IsNewCardPresent()) {
-    String time = timeFix(hour(), minute(), second());
+    time = timeFix(year(), month(), day(), hour(), minute(), second());
 
     // aqui a tag foi lida já         
     if (rfid.PICC_ReadCardSerial()) {
       for ( int i = 0; i < rfid.uid.size; i++) {
         uid.concat(rfid.uid.uidByte[i]);
       }
-      
-      Serial.print("\nTime: ");
-      Serial.println(time);
-      Serial.print("UID Geral: ");
-      Serial.println(uid);
+
+      Serial.println("OK");
+      //send();
 
       // parar a leitura
       rfid.PICC_HaltA();
