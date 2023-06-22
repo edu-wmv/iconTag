@@ -24,15 +24,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     }
 })
 
-app.get('/', (req: Request, res: Response) => {
-    res.status(200).send('Node.js + Express + PostgreSQL API')
-})
-app.get('/test', (req: Request, res: Response) => {
-    const id = req.headers['id']
-
-    res.status(200).send('Authorized' + id);
-})
-
 app.get("/insertData", db.insertData)
 app.get("/getData", db.getData)
 app.get("/insertUID", db.insertUID)

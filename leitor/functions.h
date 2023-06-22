@@ -1,12 +1,5 @@
 #include "variables.h"
 
-// FORMAT TIME FUNCTION
-String timeFix(int h, int m, int s) {
-  char buffer[6];
-  sprintf(buffer, "%02d:%02d:%02d", h, m, s);
-  return buffer;
-}
-
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -42,9 +35,7 @@ void sendNTPpacket(IPAddress &address)
   Udp.endPacket();
 }
 
-
-time_t getNtpTime()
-{
+time_t getNtpTime() {
   while (Udp.parsePacket() > 0) ; // discard any previously received packets
   Serial.println("Transmit NTP Request");
   sendNTPpacket(timeServer);
@@ -65,4 +56,34 @@ time_t getNtpTime()
   }
   Serial.println("No NTP Response :-(");
   return 0; // return 0 if unable to get the time
+}
+
+// FORMAT TIME FUNCTION
+String timeFix(int h, int m, int s) {
+  char buffer[6];
+  sprintf(buffer, "%02d:%02d:%02d", h, m, s);
+  return buffer;
+}
+
+void tagReader() {
+  // tag disponível
+  if (rfid.PICC_IsNewCardPresent()) {
+    String time = timeFix(hour(), minute(), second());
+
+    // aqui a tag foi lida já         
+    if (rfid.PICC_ReadCardSerial()) {
+      for ( int i = 0; i < rfid.uid.size; i++) {
+        uid.concat(rfid.uid.uidByte[i]);
+      }
+      
+      Serial.print("\nTime: ");
+      Serial.println(time);
+      Serial.print("UID Geral: ");
+      Serial.println(uid);
+
+      // parar a leitura
+      rfid.PICC_HaltA();
+      rfid.PCD_StopCrypto1();
+    }
+  }
 }

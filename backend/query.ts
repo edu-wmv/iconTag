@@ -63,26 +63,49 @@ const getDataByName = (req: Request, res: Response) => {
 
 const setPoint = (req: Request, res: Response) => {
     const uuid = req.headers['uuid']
+    const data_time = req.headers['time']
 
     pool.query(
-        `SELECT * FROM iconicos WHERE '${uuid}' = ANY (uid)`,
-        (error: Error, results: QueryResult) => {
+        `SELECT * FROM iconicos 
+         WHERE '${uuid}' = ANY (uid)`,
+         (error: Error, results: QueryResult) => {
             if (error) {
                 throw error
             }
-            // ENCONTROU USUÁRIO
-            const userId = results.rows[0].id;
-            const userName = results.rows[0].name;
+            if (results.rows.length > 0) {
+                // ENCONTROU USUÁRIO
+                const userId = results.rows[0].id;
+                const userName = results.rows[0].name;
 
-            pool.query(
-                `SELECT * FROM pontos`
-            )
+                pool.query(
+                    `SELECT * FROM pontos 
+                     WHERE userid = ${userId} 
+                     ORDER BY data DESC 
+                     LIMIT 1`,
+                    (error: Error, results: QueryResult) => {
+                        if (error) {
+                            throw error
+                        }
+                        const isEntrada: boolean = results.rows.length > 0 ? results.rows[0].entrada : false;
 
-            res.status(200).json(results.rows);
+                        pool.query(
+                            `INSERT INTO pontos (userId, uuid, name, data, entrada)
+                             VALUES (${userId}, ${uuid}, '${userName}', '${data_time}', ${!isEntrada})`,
+                             (error: Error, results: QueryResult) => {
+                                if (error) {
+                                    throw error
+                                }
+
+                                res.status(200).json(isEntrada === false ? `Bem vindo ao ICON ${userName}` : `Já vai tarde.`)
+                             }
+                        )
+                    }
+                    )
+                } else {
+                    res.status(200).json('Usuário não encontrado.')
+                }
         }
-    )
-
-    
+    )  
 }
 
 module.exports = {
