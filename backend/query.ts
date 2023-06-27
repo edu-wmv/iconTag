@@ -96,13 +96,13 @@ const setPoint = (req: Request, res: Response) => {
                                     throw error
                                 }
 
-                                res.status(200).json(isEntrada === false ? `Bem vindo ao ICON ${userName}` : `Já vai tarde.`)
+                                res.status(200).json(isEntrada === false ? `Bem vindo ao ICON ${userName}` : `Ja vai tarde.`)
                              }
                         )
                     }
                     )
                 } else {
-                    res.status(200).json('Usuário não encontrado.')
+                    res.status(200).json('Usuario não encontrado.')
                 }
         }
     )  

@@ -1,5 +1,7 @@
 #include "variables.h"
 
+void(* resetFunc) (void) = 0;
+
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -104,12 +106,14 @@ void tagReader() {
         uid.concat(rfid.uid.uidByte[i]);
       }
 
-      Serial.println("OK");
-      //send();
+      Serial.println("sending");
+      send();
 
       // parar a leitura
       rfid.PICC_HaltA();
       rfid.PCD_StopCrypto1();
+      delay(5000);
+      resetFunc();
     }
   }
 }
