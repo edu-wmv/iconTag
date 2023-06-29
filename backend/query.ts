@@ -96,7 +96,53 @@ const setPoint = (req: Request, res: Response) => {
                                     throw error
                                 }
 
-                                res.status(200).json(isEntrada === false ? `Bem vindo ao ICON ${userName}` : `Ja vai tarde.`)
+                                pool.query(
+                                    `SELECT * 
+                                     FROM pontos 
+                                     WHERE userId = '${userId}'
+                                     ORDER BY data DESC
+                                     LIMIT 1`,
+                                     (error: Error, results: QueryResult) => {
+                                        if (error) throw error
+
+                                        const ponto_uid = results.rows[0].uid
+
+                                        pool.query(
+                                            `UPDATE iconicos
+                                             SET pontos = array_append(pontos, '${ponto_uid}')
+                                             WHERE id = ${userId}
+                                             RETURNING *`,
+                                             (error: Error, results: QueryResult) => {
+                                                if (error) throw error
+
+
+                                             }
+                                        )
+                                     }
+                                )
+
+                                if(isEntrada === false){
+                                    res.status(200).json(`Bem vindo ao ICON ${userName}`)
+                                } else {
+                                    res.status(200).json(`Ja vai tarde.`)
+                                    pool.query(
+                                        `SELECT * 
+                                         FROM pontos
+                                         WHERE userid = '${userId}'
+                                         ORDER BY data DESC
+                                         LIMIT 2`,
+                                        (error: Error, results: QueryResult) => {
+                                            if (error) throw error
+                                            
+                                            const horaEntrada = results.rows[1].data
+                                            const horaSaida = results.rows[0].data
+
+                                            const diff = horaSaida - horaEntrada
+                                            console.log(`Entrada: ${horaEntrada} ///// SAIDA: ${horaSaida}`)
+                                            console.log(`time: ${diff}`)
+                                        }
+                                    )
+                                }
                              }
                         )
                     }

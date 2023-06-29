@@ -28,3 +28,5 @@ byte HOST_NAME[] = { 192, 168, 0, 123 };
 String HOST = "192.168.0.123";
 String API_KEY = "SUNPTl9pY29udGFn";
 EthernetClient client;
+
+boolean working = false;

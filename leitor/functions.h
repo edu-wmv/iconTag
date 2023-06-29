@@ -87,9 +87,9 @@ void send() {
     }
 
     client.stop();
+    client.flush();
     Serial.println();
     Serial.println("disconnected");
-
   } else {
     Serial.println("Connection failed :/");
   }
@@ -112,7 +112,7 @@ void tagReader() {
       // parar a leitura
       rfid.PICC_HaltA();
       rfid.PCD_StopCrypto1();
-      delay(5000);
+      delay(2500);
       resetFunc();
     }
   }
