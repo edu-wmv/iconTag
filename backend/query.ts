@@ -125,23 +125,23 @@ const setPoint = (req: Request, res: Response) => {
                                     res.status(200).json(`Bem vindo ao ICON ${userName}`)
                                 } else {
                                     res.status(200).json(`Ja vai tarde.`)
-                                    pool.query(
-                                        `SELECT * 
-                                         FROM pontos
-                                         WHERE userid = '${userId}'
-                                         ORDER BY data DESC
-                                         LIMIT 2`,
-                                        (error: Error, results: QueryResult) => {
-                                            if (error) throw error
-                                            
-                                            const horaEntrada = results.rows[1].data
-                                            const horaSaida = results.rows[0].data
-
-                                            const diff = horaSaida - horaEntrada
-                                            console.log(`Entrada: ${horaEntrada} ///// SAIDA: ${horaSaida}`)
-                                            console.log(`time: ${diff}`)
-                                        }
-                                    )
+                                    //pool.query(
+                                    //    `SELECT * 
+                                    //     FROM pontos
+                                    //     WHERE userid = '${userId}'
+                                    //     ORDER BY data DESC
+                                    //     LIMIT 2`,
+                                    //    (error: Error, results: QueryResult) => {
+                                    //        if (error) throw error
+                                    //        
+                                    //        const horaEntrada = results.rows[1].data
+                                    //        const horaSaida = results.rows[0].data
+//
+                                    //        const diff = horaSaida - horaEntrada
+                                    //        console.log(`Entrada: ${horaEntrada} ///// SAIDA: ${horaSaida}`)
+                                    //        console.log(`time: ${diff}`)
+                                    //    }
+                                    //)
                                 }
                              }
                         )
