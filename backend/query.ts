@@ -125,23 +125,34 @@ const setPoint = (req: Request, res: Response) => {
                                     res.status(200).json(`Bem vindo ao ICON ${userName}`)
                                 } else {
                                     res.status(200).json(`Ja vai tarde.`)
-                                    //pool.query(
-                                    //    `SELECT * 
-                                    //     FROM pontos
-                                    //     WHERE userid = '${userId}'
-                                    //     ORDER BY data DESC
-                                    //     LIMIT 2`,
-                                    //    (error: Error, results: QueryResult) => {
-                                    //        if (error) throw error
-                                    //        
-                                    //        const horaEntrada = results.rows[1].data
-                                    //        const horaSaida = results.rows[0].data
-//
-                                    //        const diff = horaSaida - horaEntrada
-                                    //        console.log(`Entrada: ${horaEntrada} ///// SAIDA: ${horaSaida}`)
-                                    //        console.log(`time: ${diff}`)
-                                    //    }
-                                    //)
+                                    pool.query(
+                                        `SELECT * 
+                                         FROM pontos
+                                         WHERE userid = '${userId}'
+                                         ORDER BY data DESC
+                                         LIMIT 2`,
+                                        (error: Error, results: QueryResult) => {
+                                            if (error) throw error
+                                            
+                                            const horaEntrada = results.rows[1].data
+                                            const horaSaida = results.rows[0].data
+
+                                            const diff = (horaSaida - horaEntrada) / 1000 // DIFERENÇA CALCULADA EM SEGUNDOS
+                                            const hours = toHoursAndMinutes(diff)
+
+                                            pool.query(
+                                                `UPDATE hours AS h
+                                                 SET new_hours = h.date + INTERVAL '${hours.h} hours'
+                                                 FROM iconicos AS i
+                                                 WHERE i.id = ${userId}`,
+                                                (error: Error, results: QueryResult) => {
+                                                    if (error) throw error
+
+                                                    res.status(200).json('Hours added!')
+                                                }
+                                            )
+                                        }
+                                    )
                                 }
                              }
                         )
@@ -153,6 +164,16 @@ const setPoint = (req: Request, res: Response) => {
         }
     )  
 }
+
+function toHoursAndMinutes(totalSeconds: number) {
+    const totalMinutes = Math.floor(totalSeconds / 60);
+  
+    const seconds = totalSeconds % 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+  
+    return { h: hours, m: minutes, s: seconds };
+  }
 
 module.exports = {
     insertData,
