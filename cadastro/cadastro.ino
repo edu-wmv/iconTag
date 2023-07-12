@@ -1,4 +1,4 @@
-#include "variables.h"
+#include "functions.h"
 
 void setup() {
   Serial.begin(9600);
@@ -8,8 +8,6 @@ void setup() {
 
   Serial.println("Iniciar cadastro...");
 }
-
-int check;
 
 void loop() {
   uid = tagReader();
