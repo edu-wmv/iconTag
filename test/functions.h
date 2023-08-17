@@ -1,36 +1,70 @@
-#include <MFRC522.h>
-#include <SPI.h>
-#include <LiquidCrystal.h>
+#include "variables.h"
 
-#define RST_PIN   9 // RFID reset pin
-#define SS_PIN    8 // RFID pin
-MFRC522 rfid(SS_PIN, RST_PIN); // rfid initializator
+// LED FUNCTIONS
+void redOn() {
+  digitalWrite(red, HIGH);
+}
 
-const int rs = 48, en = 46, d4 = 45, d5 = 43, d6 = 41, d7 = 39;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+void greenOn() {
+  digitalWrite(green, HIGH);
+}
+
+void blueOn() {
+  digitalWrite(blue, HIGH);
+}
+
+void whiteOn() {
+  digitalWrite(red, HIGH);
+  digitalWrite(green, HIGH);
+  digitalWrite(blue, HIGH);
+}
+
+void cianOn() {
+  digitalWrite(green, HIGH);
+  digitalWrite(blue, HIGH);
+}
+
+void ledOff() {
+  digitalWrite(red, LOW);
+  digitalWrite(green, LOW);
+  digitalWrite(blue, LOW);
+}
+
+void ethernetUDP() {
+  while(Ethernet.begin(mac) == 0) {
+    blueOn();
+    Serial.println("Failed to configure Ethernet using DHCP");
+    delay(1000);
+  }
+  Serial.print("Ethernet Shield IP (DHCP): ");
+  Serial.println(Ethernet.localIP());
+  Udp.begin(localPort);
+  greenOn();
+  Serial.println("Ethernet UDP Start....");
+}
+
+void sendData(String uid) {
+  Serial.println("Sending data...");
+  Serial.println(uid);
+}
 
 void tagReader() {
+  String uid_record;
   // tag disponível
   if (rfid.PICC_IsNewCardPresent()) {
-    Serial.println("1");
-
     // aqui a tag foi lida já         
     if (rfid.PICC_ReadCardSerial()) {
-
-      Serial.println("OK");
-      lcd.setCursor(16,0);
-      lcd.print("BEM VINDO AO ICON");
-      for (int poslcd = 0; poslcd < 36; poslcd++)
-      {
-        lcd.setCursor(16,1);
-        lcd.scrollDisplayLeft();
-        delay (250);
+      for ( int i = 0; i < rfid.uid.size; i++) {
+        uid_record.concat(rfid.uid.uidByte[i]);
       }
-      lcd.clear();
+      
+      sendData(uid_record);
 
       // parar a leitura
       rfid.PICC_HaltA();
       rfid.PCD_StopCrypto1();
+      delay(2500);
     }
   }
 }
+

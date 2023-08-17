@@ -1,5 +1,42 @@
 #include "variables.h"
 
+// LED FUNCTIONS
+void allOff() {
+  digitalWrite(red, LOW);
+  digitalWrite(green, LOW);
+  digitalWrite(blue, LOW);
+  delay(1000);
+}
+
+void redOn() {
+  digitalWrite(red, HIGH);
+}
+
+void greenOn() {
+  digitalWrite(green, HIGH);
+}
+
+void blueOn() {
+  digitalWrite(blue, HIGH);
+}
+
+void whiteOn() {
+  digitalWrite(red, HIGH);
+  digitalWrite(green, HIGH);
+  digitalWrite(blue, HIGH);
+}
+
+void cianOn() {
+  digitalWrite(green, HIGH);
+  digitalWrite(blue, HIGH);
+}
+
+void ledOff() {
+  digitalWrite(red, LOW);
+  digitalWrite(green, LOW);
+  digitalWrite(blue, LOW);
+}
+
 // ETHERNET UDP CONNECTION
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
@@ -55,7 +92,7 @@ void sendData() {
     client.println("POST /insertData HTTP/1.1");
     client.println("name:" + String(name));
     client.println("uid:" + String(uid));
-    client.println("Host:" + String(HOST_NAME) + ":" + String(HTTP_PORT));
+    client.println("Host:" + String(HOST) + ":" + String(HTTP_PORT));
     client.println("api-key: " + String(API_KEY));
     client.println("Connection: close");
     client.println();
@@ -68,9 +105,29 @@ void sendData() {
     }
 
     client.stop();
+    allOff();
+    greenOn();
     Serial.println();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("    CADASTRO    ");
+    lcd.setCursor(0, 1);
+    lcd.print("   REALIZADO!   ");
     Serial.println("disconnected");
+    delay(3000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Nome: " + String(name));
+    lcd.setCursor(0, 1);
+    lcd.print("UID: " + String(uid));
+    delay(3000);
+    lcd.clear();
   } else {
     Serial.println("connection failed");
+    allOff();
+    redOn();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("ERRO DE CONEXAO");
   }
 }
