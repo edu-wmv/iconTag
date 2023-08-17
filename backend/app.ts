@@ -27,6 +27,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.post("/insertData", db.insertData)
 app.get("/find", db.getIconicoByName)
+app.post("/setPoint", db.setPoint)
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running on port ${port}`)
