@@ -16,7 +16,7 @@ const insertData = (req: Request, res: Response) => {
 
     pool.query(
         `INSERT INTO iconicos (id, name, uid, pontos, hours)
-         VALUES (NULL, '${name}', ${uid}, '', NULL)`,
+         VALUES (NULL, '${name}', ${uid}, NULL, NULL)`,
          (error: any, results: any) => {
             if (error) throw error
             res.status(200).json(`Iconico ${name} adicionado com o ID ${results.insertId}`)
@@ -71,7 +71,32 @@ const setPoint = (req: Request, res: Response) => {
                              VALUES ('${uuidv4()}', ${userId}, '${uuid}', '${userName}', '${data_time}', ${!isEntrada})`,
                             (error: any, results: any) => {
                                 if (error) throw error
-                                res.status(200).json(`Ponto de ${!isEntrada ? 'entrada' : 'saida'} inserido com sucesso`)
+
+                                // ATUALIZA PONTOS DO USUARIO
+                                pool.query(
+                                    `SELECT * FROM pontos
+                                     WHERE userId = ${userId}
+                                     ORDER BY data DESC
+                                     LIMIT 1`,
+                                    (error: any, results: any) => {
+                                        if (error) throw error
+
+                                        // ADICIONA UID DO PONTO NA LISTA DE PONTOS DO USUARIO
+                                        const ponto_uid = results[0].uid
+                                        pool.query(
+                                            `UPDATE iconicos
+                                             SET pontos = CONCAT_WS(IFNULL(',', ''), pontos, '${ponto_uid}')
+                                             WHERE id = ${userId}`,
+                                            (error: any, results: any) => {
+                                                if (error) throw error
+
+                                                // ATUALIZA HORAS DO USUARIO
+                                                // SAIDA
+                                                
+                                            }
+                                        )
+                                    }
+                                )
                             }
                         )
                         
