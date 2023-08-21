@@ -1,4 +1,4 @@
-#include "variables.h"
+#include "functions.h"
 
 void setup() {
   Serial.begin(9600);
@@ -6,10 +6,19 @@ void setup() {
   rfid.PCD_Init();
   ethernetUDP();
 
-  Serial.println("Iniciar cadastro...");
-}
+  pinMode(red, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(blue, OUTPUT);
 
-int check;
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("CADASTRO DE TAGS");
+  lcd.setCursor(0, 1);
+  lcd.print("----TERMINAL----");
+  delay(2000);
+  blueOn();
+}
 
 void loop() {
   uid = tagReader();
@@ -43,4 +52,4 @@ void loop() {
   }
 
   while(1);
-}
+} 

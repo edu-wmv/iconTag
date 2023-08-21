@@ -106,8 +106,9 @@ void tagReader() {
         uid.concat(rfid.uid.uidByte[i]);
       }
 
-      Serial.println("sending");
-      send();
+      Serial.println(uid);
+      //Serial.println("sending");
+      //send();
 
       // parar a leitura
       rfid.PICC_HaltA();

@@ -5,8 +5,8 @@
 #include <MFRC522.h>
 
 // RFID MODULE PINS
-#define RST_PIN   9 // RFID reset pin
-#define SS_PIN    8 // RFID pin
+#define RST_PIN   37 // RFID reset pin
+#define SS_PIN    39 // RFID pin
 MFRC522 rfid(SS_PIN, RST_PIN); // rfid initializator
 
 // ETHERNET & TIME VARIABLES
