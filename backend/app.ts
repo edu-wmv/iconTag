@@ -1,4 +1,3 @@
-// load the env variables and set silent to true to suppress the warning
 require('dotenv').config({ silent: true })
 import { Request, Response, NextFunction } from 'express'
 
@@ -6,7 +5,7 @@ const express = require("express")
 const app = express()
 const logger = require('morgan')
 const db = require('./query')
-const port = process.env.PORT || 3000
+const port = process.env.PORT
 
 app.use(logger('dev'))
 app.use(express.static('public'))
@@ -26,9 +25,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 })
 
 app.post("/insertData", db.insertData)
-app.get("/find", db.getIconicoByName)
 app.post("/setPoint", db.setPoint)
 
-app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running on port ${port}`)
-})
+app.listen(port, () => { console.log(`⚡️[server]: Server is running on port ${port}`) })

@@ -5,37 +5,34 @@ Tabela: iconicos (id, name, uid, pontos, hours)
 */
 
 import { Request, Response } from 'express'
+import { OkPacket, queryCallback } from 'mysql'
 const { pool } = require('./pool')
 import { v4 as uuidv4 } from 'uuid'
 
 // INSERIR NOVO ICONICO NO BANCO DE DADOS
-const insertData = (req: Request, res: Response) => {
+const insertData = async (req: Request, res: Response) => {
     const name = req.headers['name']
     const uid = req.headers['uid']
 
-    pool.query(
-        `INSERT INTO iconicos (name, uid)
-         VALUES ('${name}', ${uid})`,
-         (error: any, results: any) => {
-            if (error) throw error
-            res.status(200).json(`Iconico ${name} adicionado com o ID ${results.insertId}`)
-         }
-    )
-}
-
-// PROCURAR ICONICO PELO NOME
-const getIconicoByName = (req: Request, res: Response) => {
-    const name = req.headers['name']
-
-    pool.query(
-        `SELECT * FROM iconicos WHERE name = '${name}'`,
-        (error: any, results: any) => {
-            if (error) throw error
-            results.length > 0 && typeof results !== undefined 
-            ? res.status(200).json(results) 
-            : res.status(200).json(`Iconico '${name}' não encontrado`)
+    // VERIFICA SE O USUARIO EXISTE
+    try {
+        const exists = await checkUid(uid) 
+        if (exists) {
+            res.status(200).json(`Iconico já cadastrado`)
+        } else {
+            pool.query(
+                `INSERT INTO iconicos (name, uid)
+                 VALUES ('${name}', ${uid})`,
+                 (error: Error, results: OkPacket) => {
+                    if (error) throw error
+                    res.status(201).json(`Iconico ${name} adicionado com o ID ${results.insertId}`)
+                }
+            )
         }
-    )
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Erro interno ao verificar UID' })
+    }
 }
 
 // INSERIR PONTO DE ENTRADA OU SAIDA
@@ -43,16 +40,19 @@ const setPoint = (req: Request, res: Response) => {
     const uuid = req.headers['uuid']
     const data_time = req.headers['time']
 
+    // VERIFICA SE O USUARIO EXISTE
     pool.query(
         `SELECT * FROM iconicos 
          WHERE uid = ${uuid}`,
         (error: Error, results: any) => {
             if (error) throw error
+
+            // USUARIO EXISTE
             if (results.length > 0 && typeof results !== undefined) {
-                // USUARIO EXISTE
                 const userId = results[0].id
                 const userName = results[0].name
 
+                // VERIFICA ULTIMO PONTO
                 pool.query(
                     `SELECT * FROM pontos
                      WHERE userId = ${userId}
@@ -138,6 +138,28 @@ const setPoint = (req: Request, res: Response) => {
     )
 }
 
+
+// VERIFICA SE UID JA EXISTE NO BANCO DE DADOS
+const checkUid = async (uid: any): Promise<boolean> => {
+    try {
+        const results = new Promise<queryCallback>((resolve, reject) => {
+            pool.query(
+                `SELECT * FROM iconicos WHERE uid = ${uid}`,
+                (error: Error, results: queryCallback) => {
+                    if (error) reject(error)
+                    resolve(results)
+                }
+            )
+        })
+
+        return (await results).length > 0 && typeof (await results) !== undefined ? true : false
+    } catch (error) {
+        console.log(error)
+        return true
+    }
+}
+
+// CONVERTER SEGUNDOS EM HORAS
 function toHoursAndMinutes(totalSeconds: number) {
     const totalMinutes = Math.floor(totalSeconds / 60);
   
@@ -148,8 +170,7 @@ function toHoursAndMinutes(totalSeconds: number) {
     return { h: hours, m: minutes, s: seconds };
 }
 
-module.exports = { 
+module.exports = {
     insertData,
-    getIconicoByName,
-    setPoint 
+    setPoint,
 }
