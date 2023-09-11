@@ -3,6 +3,8 @@
 #include <TimeLib.h>
 #include <SPI.h>
 #include <MFRC522.h>
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
 
 // RFID MODULE PINS
 #define RST_PIN   37 // RFID reset pin
@@ -30,3 +32,5 @@ String API_KEY = "SUNPTl9pY29udGFn";
 EthernetClient client;
 
 boolean working = false;
+
+LiquidCrystal_I2C lcd(0x27,16,2);

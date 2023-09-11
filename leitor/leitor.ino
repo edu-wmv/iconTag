@@ -9,6 +9,14 @@ void setup() {
   setSyncProvider(getNtpTime);
 
 	Serial.println("Aproxime a tag do leitor");
+
+  //codigo do lcd
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(1,0);
+  lcd.print("Aproxime a tag");
+  Serial.println("OK");
 }
 
 void loop() {
