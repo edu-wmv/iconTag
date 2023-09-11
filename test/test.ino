@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "functions.h"
 
 void setup() {
@@ -16,3 +17,17 @@ void loop() {
   lcd.print("ICON");
 }
 
+=======
+#include <TimeLib.h>
+#include "functions.h"
+
+void setup(){
+  Serial.begin(9600);
+  ethernetUDP();
+  setSyncProvider(getNtpTime);
+}
+
+void loop(){
+    Serial.print(weekday());
+}
+>>>>>>> 8c7b150ddda5b350f59fb65decfc94e199254ab6

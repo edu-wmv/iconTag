@@ -1,42 +1,9 @@
-<<<<<<< HEAD
-#include "variables.h"
-
-// LED FUNCTIONS
-void redOn() {
-  digitalWrite(red, HIGH);
-}
-
-void greenOn() {
-  digitalWrite(green, HIGH);
-}
-
-void blueOn() {
-  digitalWrite(blue, HIGH);
-}
-
-void whiteOn() {
-  digitalWrite(red, HIGH);
-  digitalWrite(green, HIGH);
-  digitalWrite(blue, HIGH);
-}
-
-void cianOn() {
-  digitalWrite(green, HIGH);
-  digitalWrite(blue, HIGH);
-}
-
-void ledOff() {
-  digitalWrite(red, LOW);
-  digitalWrite(green, LOW);
-  digitalWrite(blue, LOW);
-}
-
-void ethernetUDP() {
-  while(Ethernet.begin(mac) == 0) {
-    blueOn();
-=======
 #include <Ethernet.h>
 #include <EthernetUdp.h>
+#include <TimeLib.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C  lcd(0x27, 20, 4);
 
 // ETHERNET & TIME VARIABLES
 byte mac[] = { 0xAA, 0xBB, 0xCC, 0x00, 0xFE, 0xED }; // end. mac
@@ -52,42 +19,12 @@ byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
->>>>>>> 8c7b150ddda5b350f59fb65decfc94e199254ab6
     Serial.println("Failed to configure Ethernet using DHCP");
     delay(1000);
   }
   Serial.print("Ethernet Shield IP (DHCP): ");
   Serial.println(Ethernet.localIP());
   Udp.begin(localPort);
-<<<<<<< HEAD
-  greenOn();
-  Serial.println("Ethernet UDP Start....");
-}
-
-void sendData(String uid) {
-  Serial.println("Sending data...");
-  Serial.println(uid);
-}
-
-void tagReader() {
-  String uid_record;
-  // tag disponível
-  if (rfid.PICC_IsNewCardPresent()) {
-    // aqui a tag foi lida já         
-    if (rfid.PICC_ReadCardSerial()) {
-      for ( int i = 0; i < rfid.uid.size; i++) {
-        uid_record.concat(rfid.uid.uidByte[i]);
-      }
-      
-      sendData(uid_record);
-
-      // parar a leitura
-      rfid.PICC_HaltA();
-      rfid.PCD_StopCrypto1();
-      delay(2500);
-    }
-  }
-=======
   Serial.println("Ethernet UDP Start....");
 }
 
@@ -134,6 +71,5 @@ time_t getNtpTime() {
   }
   Serial.println("No NTP Response :-(");
   return 0; // return 0 if unable to get the time
->>>>>>> 8c7b150ddda5b350f59fb65decfc94e199254ab6
 }
 
