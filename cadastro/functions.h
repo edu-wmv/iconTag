@@ -1,42 +1,5 @@
 #include "variables.h"
 
-// LED FUNCTIONS
-void allOff() {
-  digitalWrite(red, LOW);
-  digitalWrite(green, LOW);
-  digitalWrite(blue, LOW);
-  delay(1000);
-}
-
-void redOn() {
-  digitalWrite(red, HIGH);
-}
-
-void greenOn() {
-  digitalWrite(green, HIGH);
-}
-
-void blueOn() {
-  digitalWrite(blue, HIGH);
-}
-
-void whiteOn() {
-  digitalWrite(red, HIGH);
-  digitalWrite(green, HIGH);
-  digitalWrite(blue, HIGH);
-}
-
-void cianOn() {
-  digitalWrite(green, HIGH);
-  digitalWrite(blue, HIGH);
-}
-
-void ledOff() {
-  digitalWrite(red, LOW);
-  digitalWrite(green, LOW);
-  digitalWrite(blue, LOW);
-}
-
 // ETHERNET UDP CONNECTION
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
@@ -49,19 +12,80 @@ void ethernetUDP() {
   Serial.println("Ethernet UDP Start....");
 }
 
+void printOnCenter(String text) {
+  int size = text.length();
+  int spaces = float(16 - size) / 2;
+  spaces = ceil(spaces);
+  for (int i = 0; i < spaces; i++) {
+    lcd.print(" ");
+  }
+  lcd.print(text);
+}
+
+// HTTP POST REQUEST
+void sendData() {
+  if(client.connect(HOST_NAME, HTTP_PORT)) {
+    Serial.println("Connected to server: ");
+
+    client.println("POST /insertData HTTP/1.1");
+    client.println("Host:" + String(HOST) + ":" + String(HTTP_PORT));
+    client.println("api-key: " + String(API_KEY));
+    client.println("name:" + String(name));
+    client.println("uid:" + String(uid));
+    client.println("Connection: close");
+    client.println();
+
+    while(client.connected()) {
+      if(client.available()) {
+        char c = client.read();
+        if (c == '{') {
+          isData = true;
+        }
+        if (isData) {
+          payload[strlen(payload)] = c;
+        }
+        if (c == '}') {
+          isData = false;
+        }
+      }
+    }
+
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, payload);
+    String statusCode = doc["statusCode"];
+    String message = doc["message"];
+    String code = doc["code"];
+
+    if (code = 'sucess') {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter("Cadastro feito!");
+    } else if (code = 'already-exists') {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter("Iconico existe");
+    }
+
+    client.stop();
+    client.flush();
+  } else {
+    Serial.println("connection failed");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("ERRO DE CONEXAO");
+    delay(3000);
+    lcd.clear();
+  }
+}
+
 // RFID TAG READER
 String tagReader() {
   // tag disponível
-  Serial.println("Ready");
   String uid_record;
   while(1)
   if (rfid.PICC_IsNewCardPresent()) {
     // aqui a tag foi lida já         
     if (rfid.PICC_ReadCardSerial()) {
-      // esse código cria a variavél para armazenar as infos do tipo da tag
-      MFRC522::PICC_Type picc_Type = rfid.PICC_GetType(rfid.uid.sak);
-      Serial.print("RFID/NFC Tag Type: ");
-      Serial.println(rfid.PICC_GetTypeName(picc_Type));
 
       // retorna UID da tag em HEX
       Serial.print("UID: ");
@@ -78,56 +102,6 @@ String tagReader() {
 
       // parar a leitura
       rfid.PICC_HaltA();
-      rfid.PCD_StopCrypto1();
     }
-  }
-}
-
-// HTTP GET REQUEST
-void sendData() {
-
-  if(client.connect(HOST_NAME, HTTP_PORT)) {
-    Serial.println("Connected to server: ");
-
-    client.println("POST /insertData HTTP/1.1");
-    client.println("name:" + String(name));
-    client.println("uid:" + String(uid));
-    client.println("Host:" + String(HOST) + ":" + String(HTTP_PORT));
-    client.println("api-key: " + String(API_KEY));
-    client.println("Connection: close");
-    client.println();
-
-    while(client.connected()) {
-      if(client.available()) {
-        char c = client.read();
-        Serial.print(c);
-      }
-    }
-
-    client.stop();
-    allOff();
-    greenOn();
-    Serial.println();
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("    CADASTRO    ");
-    lcd.setCursor(0, 1);
-    lcd.print("   REALIZADO!   ");
-    Serial.println("disconnected");
-    delay(3000);
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Nome: " + String(name));
-    lcd.setCursor(0, 1);
-    lcd.print("UID: " + String(uid));
-    delay(3000);
-    lcd.clear();
-  } else {
-    Serial.println("connection failed");
-    allOff();
-    redOn();
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("ERRO DE CONEXAO");
   }
 }

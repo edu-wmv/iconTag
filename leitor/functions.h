@@ -1,7 +1,5 @@
 #include "variables.h"
 
-void(* resetFunc) (void) = 0;
-
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -61,17 +59,33 @@ time_t getNtpTime() {
 }
 
 // FORMAT TIME FUNCTION
-String timeFix(int y, int mon, int day, int h, int min, int s) {
+String dateFix(int y, int mon, int day, int h, int min, int s) {
   char buffer[19];
   sprintf(buffer, "%d-%02d-%02d %02d:%02d:%02d", y, mon, day, h, min, s);
   return buffer;
 }
 
-void send() {
+String hourFix(int h, int m, int s) {
+  char buffer[9];
+  sprintf(buffer, "%02d:%02d:%02d", h, m, s);
+  return buffer;
+}
+
+void printOnCenter(String name) {
+  int size = name.length();
+  int spaces = float(16 - size) / 2;
+  spaces = ceil(spaces);
+  for (int i = 0; i < spaces; i++) {
+    lcd.print(" ");
+  }
+  lcd.print(name);
+}
+
+void send(String time) {
   if (client.connect(HOST_NAME, HTTP_PORT)) {
     Serial.println("Connected to server: ");
 
-    client.println("GET /setPoint HTTP/1.1");
+    client.println("POST /setPoint HTTP/1.1");
     client.println("Host: " + String(HOST) + ":" + String(HTTP_PORT));
     client.println("api-key: " + String(API_KEY));
     client.println("uuid: " + String(uid));
@@ -79,16 +93,59 @@ void send() {
     client.println("Connection: close");
     client.println();
 
+    char payload[200] = "{";
+
     while(client.connected()) {
       if(client.available()) {
         char c = client.read();
-        Serial.print(c);
+        if (c == '{') {
+          isData = true;
+        }
+        if (isData) {
+          payload[strlen(payload)] = c;
+        }
+        if (c == '}') {
+          isData = false;
+        } 
       }
     }
 
+    Serial.println(payload);
+    DynamicJsonDocument doc(1024);  
+    deserializeJson(doc, payload);
+    String statusCode = doc["statusCode"];
+    String message = doc["message"];
+    String code = doc["code"];
+    String userName = doc["user"];
+
+    if (code = 'not-found') {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter("Nao encontrado");
+    } else if (code = 'welcome') {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter(userName);
+      lcd.setCursor(0, 1);
+      String data = "Entrada " + String(time); 
+      lcd.print(data);
+    } else if (code = 'bye') {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter(userName);
+      lcd.setCursor(0, 1);
+      String data = "Saida " + String(time); 
+      lcd.print(data);
+    } else if (code = 'error') {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter(message);
+    }
+
+
     client.stop();
     client.flush();
-    Serial.println();
+    memset(payload, 0, sizeof(payload));
     Serial.println("disconnected");
   } else {
     Serial.println("Connection failed :/");
@@ -98,7 +155,12 @@ void send() {
 void tagReader() {
   // tag disponível
   if (rfid.PICC_IsNewCardPresent()) {
-    time = timeFix(year(), month(), day(), hour(), minute(), second());
+    fullTime = dateFix(year(), month(), day(), hour(), minute(), second());
+    time = hourFix(hour(), minute(), second());
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Identificando...");
+    delay(1000);
 
     // aqui a tag foi lida já         
     if (rfid.PICC_ReadCardSerial()) {
@@ -107,14 +169,58 @@ void tagReader() {
       }
 
       Serial.println(uid);
-      //Serial.println("sending");
-      //send();
+      send(time);
 
       // parar a leitura
+      uid = "";
       rfid.PICC_HaltA();
       rfid.PCD_StopCrypto1();
       delay(2500);
-      resetFunc();
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("iconTAG");
     }
   }
+}
+
+void printolcd(int val) {
+  if (val < 10) {
+    lcd.print("0");
+    lcd.print(val);
+  }
+  else {
+    lcd.print(val);
+  }
+}
+
+void timeGet() {
+  Secs = second();
+  Mins = minute();
+  Hrs = hour();
+}
+
+void timeShow() {
+  lcd.setCursor(4, 1);
+  printolcd(Hrs);
+  lcd.print(":");
+  printolcd(Mins);
+  lcd.print(":");
+  printolcd(Secs);
+
+  timeGet();
+
+  Secs++;
+  if (Secs == 60) {
+    Secs = 0;
+    Mins++;
+  }
+  if (Mins == 60)  {
+    Mins = 0;
+    Hrs++;
+  }
+  if (Hrs == 13) {
+    Hrs = 1;
+  }
+
+  delay(900);
 }

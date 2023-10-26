@@ -6,18 +6,12 @@ void setup() {
   rfid.PCD_Init();
   ethernetUDP();
 
-  pinMode(red, OUTPUT);
-  pinMode(green, OUTPUT);
-  pinMode(blue, OUTPUT);
-
-  lcd.begin(16, 2);
+  lcd.init();
+  lcd.backlight();
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("CADASTRO DE TAGS");
-  lcd.setCursor(0, 1);
-  lcd.print("----TERMINAL----");
+  printOnCenter("iCadastro");
   delay(2000);
-  blueOn();
 }
 
 void loop() {

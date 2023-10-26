@@ -8,17 +8,15 @@ void setup() {
   ethernetUDP();
   setSyncProvider(getNtpTime);
 
-	Serial.println("Aproxime a tag do leitor");
-
-  //codigo do lcd
   lcd.init();
   lcd.backlight();
-  lcd.clear();
-  lcd.setCursor(1,0);
-  lcd.print("Aproxime a tag");
-  Serial.println("OK");
+  lcd.setCursor(4, 0);
+  lcd.print("iconTAG");
+  timeGet();
 }
 
 void loop() {
+  //...Display Time to LCD...
+  timeShow();
   tagReader();
 }
