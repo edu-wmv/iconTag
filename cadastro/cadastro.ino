@@ -4,46 +4,64 @@ void setup() {
   Serial.begin(9600);
   SPI.begin();
   rfid.PCD_Init();
-  ethernetUDP();
-
   lcd.init();
   lcd.backlight();
+  ethernetUDP();
+
   lcd.clear();
   lcd.setCursor(0, 0);
-  printOnCenter("iCadastro");
+  printOnCenter("iconTAG");
+  lcd.setCursor(0, 1);
+  printOnCenter("SIGA O SERIAL");
   delay(2000);
 }
 
 void loop() {
-  uid = tagReader();
-  Serial.println("Digite o nome: ");
+  Serial.println("\niconTAG");
+
+  do {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    printOnCenter("Aproxime a tag");
+    uid = tagReader();
+  } while (uid.length() == 0);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  printOnCenter("iconTAG");
+  Serial.println("Nome iconico: ");
   while(Serial.available() == 0) {}
   name = Serial.readString();
+  registerNewUser();
+  delay(7000);
+}
 
-  Serial.println("\n========================");
-  Serial.println("\nVerifique os dados:");
-  Serial.print("Nome: ");
-  Serial.println(name);
-  Serial.print("UID: ");
-  Serial.println(uid);
+// IMPLEMENTAR FUNÇÃO DE ATUALIZAR USUÁRIO
+// void loop() {
+//   Serial.println("\niconTAG");
+//   Serial.println("\nNovo cadastro - 1\nAtualizar usuario - 2");
+//   while(Serial.available() == 0) {}
+//   String userExists = Serial.readString();
 
-  Serial.println("\nOs dados estao corretos?");
-  Serial.println("1 - SIM \n2 - NAO");
-  while(Serial.available() == 0) {}
-  check = Serial.parseInt();
-
-  switch(check) {
-    case 1:
-      Serial.println("\nOK");
-      sendData();
-      break;
-    case 2:
-      Serial.print("\nOperação cancelada.");
-      break;
-    default:
-      Serial.print("\nSelecione uma opção válida");
-      break;
-  }
-
-  while(1);
-} 
+//   if (userExists == "1") {
+//     do {
+//       lcd.clear();
+//       lcd.setCursor(0, 0);
+//       printOnCenter("Aproxime a tag");
+//       uid = tagReader();
+//     } while (uid.length() == 0);
+//     lcd.clear();
+//     lcd.setCursor(0, 0);
+//     printOnCenter("iconTAG");
+//     Serial.println("Nome iconico: ");
+//     while(Serial.available() == 0) {}
+//     name = Serial.readString();
+//     registerNewUser();
+//   } else if (userExists == "2") {
+//     Serial.println("Digite o ID do usuário: ");
+//     while(Serial.available() == 0) {}
+//     user_id = Serial.readString();
+//     updateUser();
+//   } else {
+//     Serial.println("Opção inválida");
+//   }
+// }

@@ -3,7 +3,14 @@
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
-    delay(1000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Erro de conexao");
+    delay(3000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Reconectando...");
+    delay(7000);
   }
   Serial.print("Ethernet Shield IP (DHCP): ");
   Serial.println(Ethernet.localIP());
@@ -81,19 +88,19 @@ void printOnCenter(String name) {
   lcd.print(name);
 }
 
-void send(String time) {
+void send(String fullTime, String time) {
   if (client.connect(HOST_NAME, HTTP_PORT)) {
     Serial.println("Connected to server: ");
 
-    client.println("POST /setPoint HTTP/1.1");
+    client.println("POST /api/v1/insert_point HTTP/1.1");
     client.println("Host: " + String(HOST) + ":" + String(HTTP_PORT));
-    client.println("api-key: " + String(API_KEY));
+    client.println("Authorization: " + String(API_KEY));
     client.println("uuid: " + String(uid));
-    client.println("time: " + String(time));
+    client.println("time: " + String(fullTime));
     client.println("Connection: close");
     client.println();
 
-    char payload[200] = "{";
+    char payload[200] = "";
 
     while(client.connected()) {
       if(client.available()) {
@@ -116,30 +123,39 @@ void send(String time) {
     String statusCode = doc["statusCode"];
     String message = doc["message"];
     String code = doc["code"];
-    String userName = doc["user"];
+    String userName = doc["username"];
 
-    if (code = 'not-found') {
+    Serial.println(statusCode);
+    Serial.println(message);
+    Serial.println(code);
+    Serial.println(userName);
+
+    if (code == "user_not_found" or code.length() == 0) {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter("Nao encontrado");
-    } else if (code = 'welcome') {
+    } else if (code == "welcome") {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter(userName);
       lcd.setCursor(0, 1);
       String data = "Entrada " + String(time); 
       lcd.print(data);
-    } else if (code = 'bye') {
+    } else if (code == "bye") {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter(userName);
       lcd.setCursor(0, 1);
       String data = "Saida " + String(time); 
       lcd.print(data);
-    } else if (code = 'error') {
+    } else if (code == "error") {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter(message);
+    } else {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter("Erro desconhecido");
     }
 
 
@@ -160,7 +176,7 @@ void tagReader() {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Identificando...");
-    delay(1000);
+    delay(200);
 
     // aqui a tag foi lida já         
     if (rfid.PICC_ReadCardSerial()) {
@@ -169,7 +185,7 @@ void tagReader() {
       }
 
       Serial.println(uid);
-      send(time);
+      send(fullTime, time);
 
       // parar a leitura
       uid = "";
@@ -218,9 +234,9 @@ void timeShow() {
     Mins = 0;
     Hrs++;
   }
-  if (Hrs == 13) {
-    Hrs = 1;
-  }
+  // if (Hrs == 13) {
+  //   Hrs = 1;
+  // }
 
   delay(900);
 }

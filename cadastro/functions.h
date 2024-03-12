@@ -4,7 +4,14 @@
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
-    delay(1000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Erro de conexao");
+    delay(3000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Reconectando...");
+    delay(7000);
   }
   Serial.print("Ethernet Shield IP (DHCP): ");
   Serial.println(Ethernet.localIP());
@@ -23,17 +30,19 @@ void printOnCenter(String text) {
 }
 
 // HTTP POST REQUEST
-void sendData() {
-  if(client.connect(HOST_NAME, HTTP_PORT)) {
+void registerNewUser() {
+  if (client.connect(HOST_NAME, HTTP_PORT)) {
     Serial.println("Connected to server: ");
 
-    client.println("POST /insertData HTTP/1.1");
-    client.println("Host:" + String(HOST) + ":" + String(HTTP_PORT));
-    client.println("api-key: " + String(API_KEY));
-    client.println("name:" + String(name));
-    client.println("uid:" + String(uid));
+    client.println("POST /api/v1/add_user HTTP/1.1");
+    client.println("Host: " + String(HOST) + ":" + String(HTTP_PORT));
+    client.println("Authorization: " + String(API_KEY));
+    client.println("name: " + String(name));
+    client.println("uid: " + String(uid));
     client.println("Connection: close");
     client.println();
+
+    char payload[200] = "";
 
     while(client.connected()) {
       if(client.available()) {
@@ -50,20 +59,87 @@ void sendData() {
       }
     }
 
+    Serial.println(payload);
+
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, payload);
     String statusCode = doc["statusCode"];
     String message = doc["message"];
     String code = doc["code"];
 
-    if (code = 'sucess') {
+    if (code === "user_created") {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter("Cadastro feito!");
-    } else if (code = 'already-exists') {
+    } else if (code === "user_already_exists") {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter("Iconico existe");
+    } else if (code === "internal_error") {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      Serial.println("Erro interno do servidor");
+      Serial.print(message);
+      printOnCenter("Erro de conexao");
+    } else {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      printOnCenter("Erro de conexao");
+    }
+
+    client.stop();
+    client.flush();
+  } else {
+    Serial.println("connection failed");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("ERRO DE CONEXAO");
+    delay(3000);
+    lcd.clear();
+  }
+}
+
+void updateUser() {
+  if (client.connect(HOST_NAME, HTTP_PORT)) {
+    Serial.println("Connected to server: ");
+
+    client.println("GET /get_user HTTP/1.1");
+    client.println("Host: " + String(HOST) + ":" + String(HTTP_PORT));
+    client.println("Authorization: " + String(API_KEY));
+    client.println("userId: " + String(user_id));
+    client.println("Connection: close");
+    client.println();
+
+    char payload[200] = "";
+
+    while(client.connected()) {
+      if(client.available()) {
+        char c = client.read();
+        if (c == '{') {
+          isData = true;
+        }
+        if (isData) {
+          payload[strlen(payload)] = c;
+        }
+        if (c == '}') {
+          isData = false;
+        }
+      }
+    }
+
+    Serial.println(payload);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, payload);
+    String statusCode = doc["statusCode"];
+    String message = doc["message"];
+    String code = doc["code"];
+    String user = doc["user"];
+
+    if (code == "success") {
+      Serial.println("Usuario encontrado");
+      Serial.println(user);
+    } else if (code == "not-found") {
+      Serial.println("Usuario nao existe");
     }
 
     client.stop();

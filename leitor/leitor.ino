@@ -5,13 +5,15 @@ void setup() {
   SPI.begin();                                   // inicia o spi
   rfid.PCD_Init();                               // inicia o leitor de tag63
 
+  lcd.init();
+  lcd.backlight();
+
   ethernetUDP();
   setSyncProvider(getNtpTime);
 
-  lcd.init();
-  lcd.backlight();
-  lcd.setCursor(4, 0);
-  lcd.print("iconTAG");
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  printOnCenter("iconTAG");
   timeGet();
 }
 

@@ -22,7 +22,7 @@ EthernetClient client;
 String uid;
 String name;
 String query;
-int check;
+String user_id;
 
 bool isData = false;
-char payload[100];
+char data[200];
