@@ -15,10 +15,16 @@ void setup() {
   lcd.setCursor(0, 0);
   printOnCenter("iconTAG");
   timeGet();
+  getJwt();
 }
 
 void loop() {
-  //...Display Time to LCD...
-  timeShow();
-  tagReader();
+  if (millis() - lastTime > interval) {
+    getJwt();
+    lastTime = millis();
+  } else {
+    //...Display Time to LCD...
+    timeShow();
+    tagReader();
+  }
 }

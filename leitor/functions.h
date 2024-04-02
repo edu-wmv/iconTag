@@ -3,6 +3,11 @@
 void ethernetUDP() {
   while(Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
+    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    } else if (Ethernet.linkStatus() == LinkOFF) {
+      Serial.println("Ethernet cable is not connected.");
+    }
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Erro de conexao");
@@ -12,7 +17,7 @@ void ethernetUDP() {
     lcd.print("Reconectando...");
     delay(7000);
   }
-  Serial.print("Ethernet Shield IP (DHCP): ");
+  Serial.println("Ethernet Shield IP (DHCP): ");
   Serial.println(Ethernet.localIP());
   Udp.begin(localPort);
   Serial.println("Ethernet UDP Start....");
@@ -88,23 +93,34 @@ void printOnCenter(String name) {
   lcd.print(name);
 }
 
-void send(String fullTime, String time) {
+void send(String data, String token) {
   if (client.connect(HOST_NAME, HTTP_PORT)) {
     Serial.println("Connected to server: ");
 
-    client.println("POST /api/v1/insert_point HTTP/1.1");
-    client.println("Host: " + String(HOST) + ":" + String(HTTP_PORT));
-    client.println("Authorization: " + String(API_KEY));
-    client.println("uuid: " + String(uid));
-    client.println("time: " + String(fullTime));
-    client.println("Connection: close");
+    String command = "POST /api/v2/icontag/add_point HTTP/1.1";
+
+    delay(1000);
+    Serial.print(command + "\r\n" +
+                 "Host: " + String(HOST) + ":" + String(HTTP_PORT) + "\r\n" +
+                 "Content-Type: application/json" + "\r\n" +
+                 "Authorization: Bearer " + token + "\r\n" +
+                 "Content-Length: " + data.length() + "\r\n" +
+                 "Connection: close" + "\r\n" + "\r\n" +
+                 data + "\r\n");
+    client.print(command + "\r\n" +
+                 "Host: " + String(HOST) + ":" + String(HTTP_PORT) + "\r\n" +
+                 "Content-Type: application/json" + "\r\n" +
+                 "Authorization: Bearer " + String(token) + "\r\n" +
+                 "Content-Length: " + data.length() + "\r\n" +
+                 "Connection: close" + "\r\n" + "\r\n" +
+                 data + "\r\n");
     client.println();
-
+                 
     char payload[200] = "";
-
     while(client.connected()) {
       if(client.available()) {
         char c = client.read();
+        Serial.print(c);
         if (c == '{') {
           isData = true;
         }
@@ -117,18 +133,12 @@ void send(String fullTime, String time) {
       }
     }
 
-    Serial.println(payload);
+    // Serial.println(payload);
     DynamicJsonDocument doc(1024);  
     deserializeJson(doc, payload);
-    String statusCode = doc["statusCode"];
     String message = doc["message"];
     String code = doc["code"];
     String userName = doc["username"];
-
-    Serial.println(statusCode);
-    Serial.println(message);
-    Serial.println(code);
-    Serial.println(userName);
 
     if (code == "user_not_found" or code.length() == 0) {
       lcd.clear();
@@ -148,10 +158,6 @@ void send(String fullTime, String time) {
       lcd.setCursor(0, 1);
       String data = "Saida " + String(time); 
       lcd.print(data);
-    } else if (code == "error") {
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      printOnCenter(message);
     } else {
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -168,8 +174,61 @@ void send(String fullTime, String time) {
   }
 }
 
+void getJwt() {
+  if (client.connect(HOST_NAME, HTTP_PORT)) {
+    Serial.println("connected");
+
+    String command = "POST /api/v2/auth/login HTTP/1.1";
+    String postData = "{\"username\":\"" + String(USERNAME) + "\",\"password\":\"" + String(PASSWORD) + "\"}";
+
+    Serial.println(command + "\r\n" +
+                 "Host: " + String(HOST) + ":" + String(HTTP_PORT) + "\r\n" +
+                 "Content-Type: application/json" + "\r\n" +
+                 "Content-Length: " + postData.length() + "\r\n" +
+                 "Connection: close" + "\r\n" + "\r\n" +
+                 postData + "\r\n");
+
+    client.print(command + "\r\n" +
+                 "Host: " + String(HOST) + ":" + String(HTTP_PORT) + "\r\n" +
+                 "Content-Type: application/json" + "\r\n" +
+                 "Content-Length: " + postData.length() + "\r\n" +
+                 "Connection: close" + "\r\n" + "\r\n" +
+                 postData + "\r\n");
+
+    char payload[200] = "";
+    while(client.connected()) {
+      if(client.available()) {
+        char c = client.read();
+        if (c == '{') {
+          isData = true;
+        }
+        if (isData) {
+          payload[strlen(payload)] = c;
+        }
+        if (c == '}') {
+          isData = false;
+        }
+      }
+}
+
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, payload);
+  String username = doc["username"];
+  String _token = doc["token"];
+  String expires = doc["expiresAt"];
+  token = _token;
+  Serial.println("Token set!");
+
+  client.stop();
+  client.flush();
+  } else {
+    Serial.println("Connection failed :/");
+  }
+}
+
 void tagReader() {
   // tag disponível
+  // Serial.println("Tag disponível");
   if (rfid.PICC_IsNewCardPresent()) {
     fullTime = dateFix(year(), month(), day(), hour(), minute(), second());
     time = hourFix(hour(), minute(), second());
@@ -184,8 +243,10 @@ void tagReader() {
         uid.concat(rfid.uid.uidByte[i]);
       }
 
-      Serial.println(uid);
-      send(fullTime, time);
+      String postData = "{\"uid\":\"" + String(uid) + "\",\"time\":\"" + String(fullTime) + "\"}";
+
+      send(postData, token);
+      // sendTest();
 
       // parar a leitura
       uid = "";

@@ -39,3 +39,6 @@ int  Hrs;
 int  Mins;
 int  Secs;
 int  wday, d, m, yr;
+
+unsigned long interval = 60UL * 60UL * 1000UL; // 1 hour
+unsigned long lastTime = 0;

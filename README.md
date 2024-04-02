@@ -6,6 +6,9 @@
 <h4 align="center"> 
 	🚧  Em construção...  🚧
 </h4>
+<h4 align="center">
+  ⚡v1.1⚡
+</h4>
 
 ![ícone do lab icon](https://lh3.googleusercontent.com/u/0/drive-viewer/AITFw-zgN1xp8m3jn9Iw2AXl-S7Du4aRh2YdDt7IL8Xy71Est8xAU98bEzNFk6Kp_5DsZSHQ_yxpcRxFmOPenV--GcV9lC6l=w1877-h965)
 

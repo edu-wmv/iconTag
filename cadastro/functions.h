@@ -67,15 +67,15 @@ void registerNewUser() {
     String message = doc["message"];
     String code = doc["code"];
 
-    if (code === "user_created") {
+    if (code == "user_created") {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter("Cadastro feito!");
-    } else if (code === "user_already_exists") {
+    } else if (code == "user_already_exists") {
       lcd.clear();
       lcd.setCursor(0, 0);
       printOnCenter("Iconico existe");
-    } else if (code === "internal_error") {
+    } else if (code == "internal_error") {
       lcd.clear();
       lcd.setCursor(0, 0);
       Serial.println("Erro interno do servidor");
